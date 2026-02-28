@@ -12,10 +12,5 @@ func (s *Server) ListUsers(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	jsonUsers := make([]User, len(users))
-	for i, user := range users {
-		jsonUsers[i] = (&User{}).From(user)
-	}
-
-	return ctx.JSON(http.StatusOK, jsonUsers)
+	return ctx.JSON(http.StatusOK, users)
 }

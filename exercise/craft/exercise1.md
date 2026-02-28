@@ -1,51 +1,31 @@
 # A SOLID API
 
-Start by having a look on the current code.
+Start by having a look at the current code.
 
-This project is an API, to list users from a database.
+This project is an API that lists users from a database. Take a moment to explore the different files and understand how they relate to each other.
 
-Have a look on the different files of the project.
+## Goal
 
-Let's now rewrite a bit of stuff to make this code more in adequation with SOLID principles, and more specifically the dependency inversion principle.
+Examine the codebase and identify what's wrong with the current design, using what you've learned about SOLID principles.
 
-## The issue
+## Guiding questions
 
-Have a look on the [unit test of the http handler](./pkg/http/get_test.go). Is there something wrong with this test?
+1. Open [`pkg/http/get_test.go`](./pkg/http/get_test.go). This is a unit test for the HTTP handler. What does it need to work? Does anything seem surprising for a test that's supposed to test HTTP behavior?
 
-The highest layer of the application (the HTTP handler) depends directly on the lowest layer of it (the SQL data storage).
+2. Trace the dependency chain starting from [`cmd/api/main.go`](./cmd/api/main.go). What object is passed from `main` to `Server`, and then from `Server` to the `user` package? What does this tell you about the coupling between layers?
 
-So all layers are currently strongly coupled, and we want to avoid this situation.
+3. Think about the **Single Responsibility Principle**: look at the [`pkg/user/`](./pkg/user/) package. How many responsibilities does it have? Should a "user" package know about SQL?
 
-## Step 1: the user package
+4. Think about the **Dependency Inversion Principle**: the HTTP handler (high-level) calls `user.List(s.db)` (low-level). Who depends on whom? Is that the right direction?
 
-For now, the [user package](./pkg/user/) mixes some business objects - `User` structure - with some data storage mecanisms (finding data from the database).
+5. Imagine you need to switch from PostgreSQL to another storage system. How many files would you need to change? What does that tell you about the flexibility of this design?
 
-Consider the `user` package as the core package/the business package of the application.
+## What you should take away
 
-Let's remove SQL from this package!
+By the end of this exercise, you should be able to articulate:
 
-1. Create a new package `adapters` (we will discuss this name after) in `/pkg`.
-2. Create a new struct `UserSQL` in this package. This struct contains one field: `db *sql.DB`
-3. Create a constructor function `NewUserSQL(db *sql.DB) *UserSQL` to return a `UserSQL` properly created.
-4. Move the `List()` function and attach it as a method for `UserSQL`: `func (u *UserSQL) List() ([]user.User, error)`. The input parameter `db` is no longer required, use the one from the `UserSQL` structure!
-5. Move the [test file](./pkg/user/user_test.go) to the `adapters` package. Fix the test and launch it!
+- Why the current HTTP test needs SQL-level mocking (sqlmock) even though it's testing HTTP behavior
+- That `*sql.DB` travels through every layer of the application, creating tight coupling
+- Which SOLID principles are violated and why that matters
 
-At this point, the `user` package should only contains the `User` struct.
-The `adapters` package contains two files, and `go test` is working on this package.
-
-The others packages `http` and `main` are broken, it's OK for now.
-
-## Step 2: a new interface in user
-
-As we discussed, interfaces are a viable option to inverse dependencies. Let's use it!
-
-1. Create a new file in `user` package, named `ports.go`
-2. Add a new interface `Lister` with only one method in it: `List() ([]User, error)`
-
-As interface implementation is implicit in Go, the `UserSQL` structure already meets the interface!
-
-Change the signature of the constructor to ensure the interface is implemented.
-
-Instead of `func NewUserSQL(db *sql.DB) *UserSQL`, change it to `func NewUserSQL(db *sql.DB) user.Lister`.
-
-It should just work!
+Take notes — you'll fix these issues in the next exercises!

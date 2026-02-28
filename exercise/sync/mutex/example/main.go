@@ -10,14 +10,12 @@ var mu sync.Mutex
 
 func main() {
 	var wg sync.WaitGroup
-	for i := 0; i < 1000; i++ {
-		wg.Add(1)
-		go func() {
+	for range 1000 {
+		wg.Go(func() {
 			//mu.Lock()
 			//defer mu.Unlock()
-			defer wg.Done()
-			x = x + 1
-		}()
+			x += 1
+		})
 	}
 	wg.Wait()
 	fmt.Printf("X = %d\n", x)

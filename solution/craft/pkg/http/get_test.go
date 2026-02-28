@@ -45,5 +45,5 @@ func TestListUsers(t *testing.T) {
 	// Assert
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, rec.Code)
-	require.JSONEq(t, `[{"firstname": "SpongeBob", "lastname": "SquarePants"}, {"firstname": "Patrick", "lastname": "Star"}]`, rec.Body.String())
+	require.JSONEq(t, `[{"Firstname": "SpongeBob", "Lastname": "SquarePants"}, {"Firstname": "Patrick", "Lastname": "Star"}]`, rec.Body.String())
 }

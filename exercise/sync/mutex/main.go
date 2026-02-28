@@ -29,12 +29,10 @@ func main() {
 	storage := NewStorage()
 	var wg sync.WaitGroup
 
-	for i := 0; i < 3; i++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+	for i := range 3 {
+		wg.Go(func() {
 			storage.StoreIfNotExists("my-key", fmt.Sprintf("my-value-%d", i))
-		}()
+		})
 	}
 
 	wg.Wait()

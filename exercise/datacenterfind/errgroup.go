@@ -11,9 +11,7 @@ func ErrGroup(resourceName string, finders []Finder) {
 	var wg sync.WaitGroup
 
 	for _, finder := range finders {
-		wg.Add(1)
-
-		go func() {
+		wg.Go(func() {
 			found, err := finder.FindWithError(context.TODO(), resourceName)
 			if err != nil {
 				panic(err)
@@ -22,7 +20,7 @@ func ErrGroup(resourceName string, finders []Finder) {
 				datacenter: finder,
 				found:      found,
 			}
-		}()
+		})
 	}
 
 	wg.Wait()
