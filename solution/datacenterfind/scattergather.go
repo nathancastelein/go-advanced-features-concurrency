@@ -5,15 +5,15 @@ import (
 	"sync"
 )
 
-func ScatterGather(resourceName string, finders []Finder) {
-	results := make(chan Result, len(finders))
+func ScatterGather(resourceName string, finders []Finder) []Result {
+	ch := make(chan Result, len(finders))
 	var wg sync.WaitGroup
 
 	// Scatter
 	for _, finder := range finders {
 		wg.Go(func() {
 			slog.Info("starting find", slog.Any("datacenter", finder))
-			results <- Result{
+			ch <- Result{
 				datacenter: finder,
 				found:      finder.Find(resourceName),
 			}
@@ -22,11 +22,13 @@ func ScatterGather(resourceName string, finders []Finder) {
 
 	go func() {
 		wg.Wait()
-		close(results)
+		close(ch)
 	}()
 
 	// Gather
-	for result := range results {
-		slog.Info("got result", slog.Any("datacenter", result.datacenter), slog.Bool("found", result.found))
+	var results []Result
+	for result := range ch {
+		results = append(results, result)
 	}
+	return results
 }

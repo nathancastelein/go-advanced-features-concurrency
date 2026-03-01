@@ -2,12 +2,11 @@ package main
 
 import (
 	"context"
-	"log/slog"
 
 	"golang.org/x/sync/errgroup"
 )
 
-func ErrGroup(resourceName string, finders []Finder) {
+func ErrGroup(resourceName string, finders []Finder) ([]Result, error) {
 	results := make(chan Result, len(finders))
 	errGroup, ctx := errgroup.WithContext(context.Background())
 
@@ -26,12 +25,13 @@ func ErrGroup(resourceName string, finders []Finder) {
 	}
 
 	if err := errGroup.Wait(); err != nil {
-		slog.Error("an error occured", slog.String("error", err.Error()))
-		return
+		return nil, err
 	}
 
 	close(results)
+	var allResults []Result
 	for result := range results {
-		slog.Info("got result", slog.Any("datacenter", result.datacenter), slog.Bool("found", result.found))
+		allResults = append(allResults, result)
 	}
+	return allResults, nil
 }

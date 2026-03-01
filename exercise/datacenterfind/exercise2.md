@@ -29,23 +29,6 @@ Add a range loop to iterate on the chan, and handle the result by printing a log
 slog.Info("got result", slog.Bool("found", found))
 ```
 
-To test your code, you can run the program:
-
-```bash
-go run *go -action=scattergather
-```
-
-Expected output:
-
-```
-2024/06/29 22:39:59 INFO starting find datacenter=BHS
-2024/06/29 22:39:59 INFO starting find datacenter=SBG
-2024/06/29 22:39:59 INFO starting find datacenter=GRA
-2024/06/29 22:39:59 INFO got result found=true
-2024/06/29 22:39:59 INFO got result found=true
-2024/06/29 22:39:59 INFO got result found=true
-```
-
 ## Second step
 
 Let's now imagine we want to know the "origin" of each result, ie. the datacenter where the result comes from.
@@ -59,19 +42,14 @@ Then:
 - Create and send to the chan a proper `Result` with the result and the finder
 - Add a new value in the `got result` log: `slog.Any("datacenter", result.datacenter)`
 
-Test your code:
+To test your code, run the test:
 
 ```bash
-go run *go -action=scattergather
+go test -run TestScatterGather -v
 ```
 
-Expected output:
+You can also run the application to see the logs:
 
-```
-2024/06/29 22:39:59 INFO starting find datacenter=BHS
-2024/06/29 22:39:59 INFO starting find datacenter=SBG
-2024/06/29 22:39:59 INFO starting find datacenter=GRA
-2024/06/29 22:39:59 INFO got result datacenter=SBG found=true
-2024/06/29 22:39:59 INFO got result datacenter=GRA found=true
-2024/06/29 22:39:59 INFO got result datacenter=BHS found=true
+```bash
+go run . -action=scattergather
 ```

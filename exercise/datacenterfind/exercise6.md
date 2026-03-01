@@ -11,25 +11,14 @@ Let's say we want to allow only two concurrent calls at the same time.
 - At the end of your goroutine, read data from your chan to release the lock.
 
 
-Test your code:
+To test your code, run the test:
 
 ```bash
-go run *go -action=semaphore
+go test -run TestSemaphore -v
 ```
 
-Expected output:
+You can also run the application to see the logs:
 
+```bash
+go run . -action=semaphore
 ```
-2024/06/29 23:56:36 INFO starting find datacenter=WAW
-2024/06/29 23:56:36 INFO starting find datacenter=GRA
-2024/06/29 23:56:36 INFO got result datacenter=WAW found=true
-2024/06/29 23:56:36 INFO starting find datacenter=SBG
-2024/06/29 23:56:36 INFO got result datacenter=GRA found=true
-2024/06/29 23:56:36 INFO starting find datacenter=BHS
-2024/06/29 23:56:36 INFO got result datacenter=SBG found=true
-2024/06/29 23:56:36 INFO starting find datacenter=RBX
-2024/06/29 23:56:36 INFO got result datacenter=RBX found=true
-2024/06/29 23:56:36 INFO got result datacenter=BHS found=true
-```
-
-You program starts with two goroutines. Each time a result is found, it means one goroutine finished and released its lock, so a new one can start.

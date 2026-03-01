@@ -5,8 +5,8 @@ import (
 	"log/slog"
 )
 
-func Hedged(resourceName string, finders []Finder) {
-	results := make(chan bool, len(finders))
+func Hedged(resourceName string, finders []Finder) []Result {
+	ch := make(chan Result, len(finders))
 	ctx, cancel := context.WithCancel(context.Background())
 
 	for _, finder := range finders {
@@ -14,13 +14,16 @@ func Hedged(resourceName string, finders []Finder) {
 			slog.Info("launching find", slog.Any("datacenter", finder))
 			found, err := finder.FindWithContext(ctx, resourceName)
 			if err == nil {
-				results <- found
+				ch <- Result{
+					datacenter: finder,
+					found:      found,
+				}
 			}
 		}()
 	}
 
-	found := <-results
+	result := <-ch
 	cancel()
-	close(results)
-	slog.Info("got result", slog.Bool("found", found))
+	close(ch)
+	return []Result{result}
 }

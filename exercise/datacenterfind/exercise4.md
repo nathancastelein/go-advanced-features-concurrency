@@ -11,20 +11,17 @@ The goal of this exercise is to change the `sync.WaitGroup` to a `ErrGroup`.
 - Creates a new `ErrGroup` by using [errgroup.WithContext](https://pkg.go.dev/golang.org/x/sync/errgroup#WithContext).
 - Replace the `go func()` with the proper ErrGroup `Go` method.
 - Replace the `wg.Wait` to use the ErrGroup `Wait` method.
-- Handle the error from ErrGroup `Wait` method with an error log: `		slog.Error("an error occured", slog.String("error", err.Error()))`
+- Handle the error from ErrGroup `Wait` method by returning it.
 - Remove the `sync.WaitGroup`.
 
-Test your code:
+To test your code, run the test:
 
 ```bash
-go run *go -action=errgroup
+go test -run TestErrGroup -v
 ```
 
-Expected output:
+You can also run the application to see the logs:
 
-```
-2024/06/29 23:29:06 INFO deadline exceeded finder=GRA
-2024/06/29 23:29:06 INFO deadline exceeded finder=SBG
-2024/06/29 23:29:06 INFO deadline exceeded finder=BHS
-2024/06/29 23:29:06 ERROR an error occured error="something went wrong"
+```bash
+go run . -action=errgroup
 ```
