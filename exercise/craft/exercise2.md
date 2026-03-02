@@ -1,16 +1,14 @@
 # Decoupling with Interfaces
 
-In the previous exercise, you identified that all layers of this application are tightly coupled through `*sql.DB`. The HTTP handler test needs sqlmock, the `user` package mixes business logic with SQL, and changing the storage would require modifying almost every file.
+In the previous exercise, you identified that all layers are tightly coupled through `*sql.DB`. The HTTP handler test needs sqlmock, the `user` package mixes business logic with SQL, and changing the storage would require modifying almost every file.
 
-Let's fix this using interfaces and the SOLID principles we've seen in the slides.
+Let's fix this using interfaces.
 
 ## Goal
 
-Refactor the codebase so that the HTTP handler no longer depends on `*sql.DB` or on the SQL logic in the `user` package. Use an interface to inverse the dependency.
+Refactor the codebase so that the HTTP handler no longer depends on `*sql.DB` or on the SQL logic. Use an interface to inverse the dependency.
 
 ## What you need to achieve
-
-Here are your objectives — it's up to you to figure out how to get there:
 
 1. **The `user` package should only contain business definitions**: the `User` struct and an interface describing how to retrieve users. No SQL, no `database/sql` import.
 
@@ -20,14 +18,6 @@ Here are your objectives — it's up to you to figure out how to get there:
 
 4. **`main.go` should wire everything together**: this is the only place that knows about both the HTTP server and the concrete storage implementation.
 
-## Which SOLID principles are you applying?
-
-As you refactor, think about which principles guide each change:
-
-- **Single Responsibility Principle (SRP)**: the `user` package was doing two things — defining business objects and querying the database. After refactoring, each package has one job.
-- **Dependency Inversion Principle (DIP)**: the HTTP handler (high-level module) will depend on an abstraction (the interface), not on the SQL implementation (low-level module).
-- **Interface Segregation Principle (ISP)**: the interface should be small and focused — only the method(s) the HTTP handler actually needs.
-
 ## Validation
 
 When you're done:
@@ -36,26 +26,13 @@ When you're done:
 - `go test ./pkg/storage/...` should pass (the SQL test with sqlmock)
 - The `pkg/http/` package should **not** import `database/sql`
 
-## Hints
+## Step by step
 
-<details>
-<summary>Hint 1: the interface</summary>
+1. In `pkg/user/`, define a `Lister` interface with a single method: `List() ([]User, error)`. Keep it alongside the `User` struct. Remove all SQL-related code from this package.
 
-Define a `Lister` interface with a single method: `List() ([]User, error)`. Put it in the `user` package alongside the `User` struct.
+2. Create a `pkg/storage/` package. Move the SQL logic there into a struct (e.g. `UserSQL`) with a `List() ([]user.User, error)` method. In Go, interface implementation is implicit: if the method signature matches, the interface is satisfied automatically.
 
-</details>
-
-<details>
-<summary>Hint 2: implicit implementation</summary>
-
-In Go, interface implementation is implicit. If your storage struct has a `List() ([]User, error)` method, it automatically satisfies the `Lister` interface. No need for `implements` keywords.
-
-</details>
-
-<details>
-<summary>Hint 3: verify implementation at compile time</summary>
-
-You can make the constructor return the interface type instead of the concrete type to verify that the implementation is correct at compile time:
+3. You can make the constructor return the interface type to verify at compile time that the implementation is correct:
 
 ```go
 func NewUserSQL(db *sql.DB) user.Lister {
@@ -63,4 +40,6 @@ func NewUserSQL(db *sql.DB) user.Lister {
 }
 ```
 
-</details>
+4. Update `pkg/http/` so that `Server` takes a `user.Lister` instead of `*sql.DB`.
+
+5. Update `cmd/api/main.go` to create the storage and pass it to the HTTP server.
