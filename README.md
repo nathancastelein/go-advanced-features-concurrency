@@ -22,7 +22,6 @@ go-advanced-features-concurrency/
     ├── generics/
     ├── interfaces/
     ├── craft/
-    ├── hexagonal/      # Hexagonal architecture reference
     ├── concurrency/
     ├── sync/
     ├── select/
