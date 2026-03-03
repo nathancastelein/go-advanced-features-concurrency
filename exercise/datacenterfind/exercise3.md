@@ -16,21 +16,14 @@ Open the [redundant.go](./redundant.go) file:
 - Stop the function after the first result, then call the cancel method
 - Don't forget to close the channel
 
-Test your code:
+To test your code, run the test:
 
 ```bash
-go run *go -action=redundant
+go test -run TestRedundant -v
 ```
 
-Expected output:
+You can also run the application to see the logs:
 
+```bash
+go run . -action=redundant
 ```
-2024/07/08 22:38:00 INFO launching find datacenter=BHS
-2024/07/08 22:38:00 INFO launching find datacenter=GRA
-2024/07/08 22:38:00 INFO launching find datacenter=SBG
-2024/07/08 22:38:00 INFO deadline exceeded finder=GRA
-2024/07/08 22:38:00 INFO deadline exceeded finder=BHS
-2024/07/08 22:38:00 INFO got result datacenter=SBG found=true
-```
-
-You should got result from one datacenter, and two others with a deadline exceeded log.

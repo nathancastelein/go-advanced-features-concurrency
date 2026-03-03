@@ -4,19 +4,14 @@ Open [waitgroup.go](./waitgroup.go) file.
 
 Using `sync.WaitGroup` ([https://pkg.go.dev/sync#WaitGroup](https://pkg.go.dev/sync#WaitGroup)), add concurrency so the calls to `finder.Find` are performed simultaneously.
 
-To test your development, you can run the program:
+To test your development, run the test:
 
 ```bash
-go run *go -action=waitgroup
+go test -run TestWaitGroup -v
 ```
 
-Expected output: three `starting find` logs, followed by three `got result`.
+You can also run the application to see the logs:
 
-```
-2024/06/29 22:16:58 INFO starting find datacenter=BHS
-2024/06/29 22:16:58 INFO starting find datacenter=SBG
-2024/06/29 22:16:58 INFO starting find datacenter=GRA
-2024/06/29 22:16:58 INFO got result datacenter=SBG found=true
-2024/06/29 22:16:58 INFO got result datacenter=GRA found=true
-2024/06/29 22:16:58 INFO got result datacenter=BHS found=true
+```bash
+go run . -action=waitgroup
 ```

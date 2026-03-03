@@ -6,8 +6,14 @@ Let's now rewriter our homemade semaphore with a [Weighted Semaphore](https://pk
 - Use `Acquire` method to acquire a lock. You can use `finder.Weight()` to get the weight of your actual finder.
 - Use `Release` method to release the lock.
 
-Test your code:
+To test your code, run the test:
 
 ```bash
-go run *go -action=wsemaphore
+go test -run TestWeightedSemaphore -v
+```
+
+You can also run the application to see the logs:
+
+```bash
+go run . -action=wsemaphore
 ```

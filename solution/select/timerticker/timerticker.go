@@ -1,23 +1,20 @@
 package timerticker
 
-import (
-	"fmt"
-	"time"
-)
+import "time"
 
-func TimerTicker(timerDuration time.Duration, tickerDuration time.Duration) {
+func TimerTicker(timerDuration time.Duration, tickerDuration time.Duration) int {
 	timer := time.NewTimer(timerDuration)
 	ticker := time.NewTicker(tickerDuration)
+	defer ticker.Stop()
+	defer timer.Stop()
 
+	ticks := 0
 	for {
 		select {
 		case <-timer.C:
-			fmt.Println("Time to say goodbye")
-			ticker.Stop()
-			timer.Stop()
-			return
+			return ticks
 		case <-ticker.C:
-			fmt.Println("Hello from ticker")
+			ticks++
 		}
 	}
 }

@@ -6,31 +6,31 @@ import (
 	"sync"
 )
 
-func Redundant(resourceName string, finders []Finder) {
-	results := make(chan Result, len(finders))
+func Redundant(resourceName string, finders []Finder) []Result {
+	ch := make(chan Result, len(finders))
 	var wg sync.WaitGroup
 
 	for _, finder := range finders {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			slog.Info("starting find", slog.Any("datacenter", finder))
 			found, err := finder.FindWithContext(context.TODO(), resourceName)
 			if err == nil {
-				results <- Result{
+				ch <- Result{
 					datacenter: finder,
 					found:      found,
 				}
 			}
-		}()
+		})
 	}
 
 	go func() {
 		wg.Wait()
-		close(results)
+		close(ch)
 	}()
 
-	for result := range results {
-		slog.Info("got result", slog.Any("datacenter", result.datacenter), slog.Bool("found", result.found))
+	var results []Result
+	for result := range ch {
+		results = append(results, result)
 	}
+	return results
 }

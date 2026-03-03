@@ -6,9 +6,9 @@ import (
 	"time"
 )
 
-func Hedged(resourceName string, finders []Finder) {
-	results := make(chan bool)
-	defer close(results)
+func Hedged(resourceName string, finders []Finder) []Result {
+	ch := make(chan Result, len(finders))
+	//defer close(ch)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -19,16 +19,19 @@ func Hedged(resourceName string, finders []Finder) {
 			slog.Info("launching find", slog.Any("datacenter", finder))
 			found, err := finder.FindWithContext(ctx, resourceName)
 			if err == nil {
-				results <- found
+				ch <- Result{
+					datacenter: finder,
+					found:      found,
+				}
 			}
 		}()
 
 		select {
-		case result := <-results:
-			slog.Info("got result", slog.Bool("found", result))
-			return
+		case result := <-ch:
+			return []Result{result}
 		case <-timer.C:
 			continue
 		}
 	}
+	return nil
 }

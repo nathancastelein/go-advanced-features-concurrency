@@ -11,10 +11,10 @@ type Storage struct {
 func (s Storage) GetPrice() float64 {
 	var unitPrice float64
 	switch {
-	case s.QuantityInGB >= 1024:
-		unitPrice = 1.5
 	case s.QuantityInGB >= 1024*10:
 		unitPrice = 1.0
+	case s.QuantityInGB >= 1024:
+		unitPrice = 1.5
 	default:
 		unitPrice = 2.0
 	}
