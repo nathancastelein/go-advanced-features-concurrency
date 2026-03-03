@@ -7,8 +7,8 @@ import (
 )
 
 func Hedged(resourceName string, finders []Finder) []Result {
-	ch := make(chan Result)
-	defer close(ch)
+	ch := make(chan Result, len(finders))
+	//defer close(ch)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 

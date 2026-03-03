@@ -4,10 +4,9 @@ Hedged requests is a concurrency pattern where we want to send a first request, 
 
 To do so, we will use a `time.Timer` and play with a `select` statement.
 
-- Change the size of your chan to 0, as we will need only one result
 - Before the goroutine creation, create a `time.Timer` with a duration of `75 milliseconds`.
 - After your goroutine, add a `select` statement to select between your result chan and the `timer.C` chan.
-- Don't forget to exit your function at the first result, and to cancel context and close your results chan
+- Don't forget to exit your function at the first result, and to cancel context
 
 To test your code, run the test:
 
